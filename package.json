@@ -1,0 +1,9 @@
+{
+  "dependencies": {
+    "@emotion/react": "^11.13.3",
+    "apexcharts": "^3.53.0",
+    "jwt-decode": "^4.0.0",
+    "react-apexcharts": "^1.4.1",
+    "react-input-mask": "^2.0.4"
+  }
+}

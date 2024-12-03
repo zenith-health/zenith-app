@@ -1,0 +1,17 @@
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTczMzE0OTIwNSwianRpIjoiZDA1ZDJmNmYtYWI1MC00MWMwLWJiMDItMWY5ODc2YmEwNjBkIiwidHlwZSI6ImFjY2VzcyIsInN1YiI6eyJpZCI6IjY3NDc4MzZiZTc2NzBjNGVmYWVkM2ExMCIsImVtYWlsIjoicG90dGVyQGdtYWlsLmNvbSIsInJvbGUiOiJ1c2VyIn0sIm5iZiI6MTczMzE0OTIwNSwiY3NyZiI6IjQzNTUwNjQ2LThhMjktNDNkNC05YzNjLTI3ZTQ5ZmFjMGQ3NiIsImV4cCI6MTczMzE1MDEwNX0.9iMRNB9AFpBD6SECDGJo-Z9Bm5SK7VoTDCWTPfyi-vM
+
+
+curl -X POST http://localhost:5000/api/anamnesis -H "Content-Type: application/json" -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTczMzE0OTc2NywianRpIjoiNWJjN2ExYmItZDk0Zi00ZTg3LTkwMWMtMGRhYTgzZTBlYTU1IiwidHlwZSI6ImFjY2VzcyIsInN1YiI6eyJpZCI6IjY3NDc4MzZiZTc2NzBjNGVmYWVkM2ExMCIsImVtYWlsIjoicG90dGVyQGdtYWlsLmNvbSIsInJvbGUiOiJ1c2VyIn0sIm5iZiI6MTczMzE0OTc2NywiY3NyZiI6IjcxOTBkYmVlLTFlMTAtNGMxYS05ZDQ3LTU3NGQxNTY5MjZkZiIsImV4cCI6MTczMzE1MDY2N30.BcZkxgvZ6FezsXe3V_eLTJ2HKBDBsjP_gJ17LAEgY0E" -d '{"historico_medico": "example", "alergias": "example", "medicamentos": "example"}'
+
+Invoke-RestMethod -Uri http://localhost:5000/api/anamnesis `
+    -Method POST `
+    -Headers @{
+        "Content-Type" = "application/json"
+        "Authorization" = "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTczMzE0OTc2NywianRpIjoiNWJjN2ExYmItZDk0Zi00ZTg3LTkwMWMtMGRhYTgzZTBlYTU1IiwidHlwZSI6ImFjY2VzcyIsInN1YiI6eyJpZCI6IjY3NDc4MzZiZTc2NzBjNGVmYWVkM2ExMCIsImVtYWlsIjoicG90dGVyQGdtYWlsLmNvbSIsInJvbGUiOiJ1c2VyIn0sIm5iZiI6MTczMzE0OTc2NywiY3NyZiI6IjcxOTBkYmVlLTFlMTAtNGMxYS05ZDQ3LTU3NGQxNTY5MjZkZiIsImV4cCI6MTczMzE1MDY2N30.BcZkxgvZ6FezsXe3V_eLTJ2HKBDBsjP_gJ17LAEgY0E"
+    } `
+    -Body '{"historico_medico": "example", "alergias": "example", "medicamentos": "example"}' `
+    -ContentType "application/json"
+
+
+curl -X POST http://localhost:5000/api/anamnesis -H "Content-Type: application/json" -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTczMzE0OTc2NywianRpIjoiNWJjN2ExYmItZDk0Zi00ZTg3LTkwMWMtMGRhYTgzZTBlYTU1IiwidHlwZSI6ImFjY2VzcyIsInN1YiI6eyJpZCI6IjY3NDc4MzZiZTc2NzBjNGVmYWVkM2ExMCIsImVtYWlsIjoicG90dGVyQGdtYWlsLmNvbSIsInJvbGUiOiJ1c2VyIn0sIm5iZiI6MTczMzE0OTc2NywiY3NyZiI6IjcxOTBkYmVlLTFlMTAtNGMxYS05ZDQ3LTU3NGQxNTY5MjZkZiIsImV4cCI6MTczMzE1MDY2N30.BcZkxgvZ6FezsXe3V_eLTJ2HKBDBsjP_gJ17LAEgY0E" -d '{"historico_medico": "example", "alergias": "example", "medicamentos": "example"}'

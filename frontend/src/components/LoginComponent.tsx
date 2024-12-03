@@ -18,16 +18,10 @@ function LoginComponent({ setShowSignUp }: LoginComponentProps) {
     try {
       const response = await axios.post('http://localhost:5000/users/login', { email, password });
       console.log('Resposta da API:', response.data);
-      const { access_token } = response.data;
-      if (!access_token) {
-        throw new Error('Token não encontrado na resposta');
-      }
-      const decodedToken = JSON.parse(atob(access_token.split('.')[1]));
-      console.log('Token Decodificado:', decodedToken);
-      const { role } = decodedToken.sub;
+      const user = response.data.user;
 
-      if (!role) {
-        throw new Error('Role não encontrada no token');
+      if (!user) {
+        throw new Error('Usuário não encontrado na resposta');
       }
 
       toast({
@@ -37,9 +31,12 @@ function LoginComponent({ setShowSignUp }: LoginComponentProps) {
         isClosable: true,
       });
 
-      localStorage.setItem('token', access_token);
-      localStorage.setItem('role', role);
-      navigate(role === 'admin' ? '/admin' : '/home');
+      // Store user information in localStorage
+      localStorage.setItem('user', JSON.stringify(user));
+
+      // Navigate to '/home' path after successful login
+      navigate('/home'); 
+
     } catch (err) {
       toast({
         title: "Erro no login",

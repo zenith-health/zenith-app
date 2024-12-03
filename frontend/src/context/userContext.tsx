@@ -1,71 +1,71 @@
-import React, { createContext, useContext, useState, useEffect, useMemo } from 'react';
+import React, { createContext, useContext, useState, useEffect, useMemo, ReactNode } from 'react';
 import * as jwt_decode from 'jwt-decode';
 
-export const UserContext = createContext();
+// Define a type for the user
+interface User {
+  _id: string;
+  email: string;
+}
 
-export const UserProvider = ({ children }) => {
-    const [user, setUser] = useState(null);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
+// Define the context value type
+interface UserContextType {
+  user: User | null;
+  loading: boolean;
+  error: string | null;
+}
 
-    useEffect(() => {
-        const token = localStorage.getItem('token');
-        if (token) {
-            try {
-                // Decode token to get user info
-                const decodedToken = jwt_decode(token);
-                
-                // Set user info from decoded token
-                setUser({
-                    _id: decodedToken._id, // Ajuste o nome da chave conforme sua estrutura do token
-                    email: decodedToken.email,
-                });
+export const UserContext = createContext<UserContextType | undefined>(undefined);
 
-                setLoading(false);
-            } catch (error) {
-                setError('Failed to decode token.');
-                setLoading(false);
-            }
-        } else {
-            setLoading(false);
-        }
-    }, []);
+interface UserProviderProps {
+  children: ReactNode;
+}
 
-    const sendEmail = async (userId, userEmail) => {
-        if (!userId || !userEmail) {
-            console.error("User ID or Email is not available.");
-            return;
-        }
+export const UserProvider = ({ children }: UserProviderProps) => {
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
 
-        try {
-            const response = await fetch('http://localhost:5000/api/send-email', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ userId, email: userEmail }),
-            });
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      try {
+        // Decode token to get user info
+        const decodedToken = jwt_decode<{ _id: string; email: string }>(token);
 
-            if (!response.ok) {
-                console.error('Failed to send email');
-            }
-        } catch (error) {
-            console.error('Error sending email:', error);
-        }
-    };
+        // Set user info from decoded token
+        setUser({
+          _id: decodedToken._id,
+          email: decodedToken.email,
+        });
 
-    const value = useMemo(() => ({
-        user,
-        loading,
-        error,
-        sendEmail, // Expose sendEmail to components
-    }), [user, loading, error]);
+        setLoading(false);
+      } catch (error) {
+        setError('Failed to decode token.');
+        setLoading(false);
+      }
+    } else {
+      setLoading(false);
+    }
+  }, []);
 
-    return (
-        <UserContext.Provider value={value}>
-            {children}
-        </UserContext.Provider>
-    );
+  const value = useMemo(() => ({
+    user,
+    loading,
+    error,
+  }), [user, loading, error]);
+
+  return (
+    <UserContext.Provider value={value}>
+      {children}
+    </UserContext.Provider>
+  );
 };
 
-export const useUser = () => useContext(UserContext);
+// Custom hook to use the user context
+export const useUser = (): UserContextType => {
+  const context = useContext(UserContext);
+  if (!context) {
+    throw new Error('useUser must be used within a UserProvider');
+  }
+  return context;
+};

@@ -13,16 +13,13 @@ import {
   SimpleGrid,
   useToast,
 } from '@chakra-ui/react';
-import { useEffect, useState, useContext } from 'react';
-import { jwtDecode } from 'jwt-decode';
-import { UserContext } from '../../context/userContext'; // Import UserContext
+import { useEffect, useState } from 'react';
 
 interface Anamnese {
   id: string;
   historico_medico: string;
   alergias: string;
   medicamentos: string;
-  user_id: string;
 }
 
 export function DataComponent() {
@@ -30,25 +27,28 @@ export function DataComponent() {
   const [isDataModalOpen, setIsDataModalOpen] = useState(false);
   const [selectedAnamnesis, setSelectedAnamnesis] = useState<Anamnese | null>(null);
   const toast = useToast();
-  const { user } = useContext(UserContext); // Correctly destructure user from context
 
   useEffect(() => {
     const fetchAnamnesisData = async () => {
       try {
-        const token = localStorage.getItem('token');
-        if (!token) {
-          throw new Error('Token não encontrado no localStorage');
+        // Retrieve the user data (email, id) from localStorage
+        const userData = localStorage.getItem('user'); // User data stored under 'user'
+        if (!userData) {
+          throw new Error('Usuário não encontrado. Faça login.');
         }
 
-        // Decodifica o token para obter as informações do usuário
-        const decodedToken: any = jwtDecode(token);
-        console.log('Token decodificado:', decodedToken); // Log do token decodificado
+        const { email, id } = JSON.parse(userData);
 
+        if (!email || !id) {
+          throw new Error('Dados do usuário incompletos.');
+        }
+
+        // Make the API call using the user ID for authorization
         const response = await fetch('http://localhost:5000/api/anamnesis', {
           method: 'GET',
           headers: {
-            Authorization: `Bearer ${token}`,
             'Content-Type': 'application/json',
+            'Authorization': `Bearer ${id}`, // Use user ID in the Authorization header
           },
           credentials: 'include',
         });
@@ -72,7 +72,7 @@ export function DataComponent() {
     };
 
     fetchAnamnesisData();
-  }, [toast]); // Added toast to the dependency array for best practices
+  }, [toast]);
 
   const deleteAnamnesis = async (id: string) => {
     if (!id) {
@@ -81,15 +81,23 @@ export function DataComponent() {
     }
 
     try {
-      const token = localStorage.getItem('token');
-      if (!token) {
-        throw new Error('Token não encontrado no localStorage');
+      // Retrieve the user data (email, id) from localStorage
+      const userData = localStorage.getItem('user');
+      if (!userData) {
+        throw new Error('Usuário não encontrado. Faça login.');
       }
 
+      const { email, id: userId } = JSON.parse(userData);
+
+      if (!email || !userId) {
+        throw new Error('Dados do usuário incompletos.');
+      }
+
+      // Make the API call to delete the anamnese
       const response = await fetch(`http://localhost:5000/api/anamnesis/${id}`, {
         method: 'DELETE',
         headers: {
-          Authorization: `Bearer ${token}`,
+          'Authorization': `Bearer ${userId}`, // Use user ID for authorization
           'Content-Type': 'application/json',
         },
       });
@@ -129,34 +137,23 @@ export function DataComponent() {
 
   // Função de exportação via e-mail com SendGrid
   const exportDataViaEmail = async () => {
-    const token = localStorage.getItem("token");
-
-    // Check if the user is logged in
-    if (!token) {
+    // Retrieve the user data (email, id) from localStorage
+    const userData = localStorage.getItem('user');
+    if (!userData) {
       alert("Usuário não logado");
       return;
     }
 
-    // Decodifica o token para obter o ID do usuário
-    const decodedToken: any = jwtDecode(token);
-    console.log('Token decodificado:', decodedToken); // Log do token decodificado
-
-    const userId = decodedToken.sub; // Assuming 'sub' contains the user_id
-    const userEmail = decodedToken.email; // Assuming 'email' contains the user's email
-
-    if (!userId || !userEmail) {
-      alert("User information is incomplete.");
-      return;
-    }
+    const { email } = JSON.parse(userData);
 
     try {
       const response = await fetch('http://localhost:5000/api/export/anamnesis', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
+          'Authorization': `Bearer ${email}`, // Send email for export
         },
-        body: JSON.stringify({ user_id: userId, email: userEmail }),
+        body: JSON.stringify({ email: email }),
       });
 
       if (!response.ok) {

@@ -21,18 +21,10 @@ def create_app():
     # MongoDB and JWT configurations
     app.config["MONGO_URI"] = os.getenv("MONGO_URI")
     app.config["JWT_SECRET_KEY"] = os.getenv("JWT_SECRET_KEY")
-
+    print("JWT_SECRET_KEY:", os.getenv('JWT_SECRET_KEY'))
     
     mongo.init_app(app)
     jwt.init_app(app)
-
-    app.config['MAIL_SERVER'] = os.getenv('MAIL_SERVER')
-    app.config['MAIL_PORT'] = int(os.getenv('MAIL_PORT'))  # Porta precisa ser int
-    app.config['MAIL_USE_TLS'] = os.getenv('MAIL_USE_TLS').lower() in ['true', '1', 't']
-    app.config['MAIL_USERNAME'] = os.getenv('MAIL_USERNAME')
-    app.config['MAIL_PASSWORD'] = os.getenv('MAIL_PASSWORD')
-
-    mail.init_app(app)
 
     # Handle preflight requests
     @app.before_request
@@ -49,12 +41,15 @@ def create_app():
         from .routes import bp as anamnesis_bp
         from .user_routes import bp as user_bp
         from .terms_routes import bp as terms_bp
-        from .send_email import bp as share_bp
 
-        app.register_blueprint(anamnesis_bp)
+        print("Creating app and registering blueprints...")
+
+        app.register_blueprint(anamnesis_bp, url_prefix='/api')
         app.register_blueprint(user_bp, url_prefix='/users')
         app.register_blueprint(terms_bp, url_prefix='/api/terms')
-        app.register_blueprint(share_bp, url_prefix='/api')
+        # app.register_blueprint(share_bp, url_prefix='/api')
+
+        print("Blueprints registered.")
 
     return app
 

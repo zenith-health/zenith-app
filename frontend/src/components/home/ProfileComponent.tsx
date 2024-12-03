@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 export const ProfileComponent = () => {
-    const [user, setUser] = useState(null);
+    const [user, setUser] = useState<any>(null); // No longer need to be strongly typed
     const { isOpen, onOpen, onClose } = useDisclosure();
     const toast = useToast();
     const navigate = useNavigate();
@@ -11,21 +11,14 @@ export const ProfileComponent = () => {
     // Função para buscar os detalhes do usuário
     const fetchUserDetails = async () => {
         try {
-            const token = localStorage.getItem('token');
-            const response = await fetch('http://localhost:5000/users/user', { // URL corrigida
-                method: 'GET',
-                headers: {
-                    Authorization: `Bearer ${token}`,  // Passa o token JWT para autenticação
-                    'Content-Type': 'application/json',
-                },
-            });
-
-            if (!response.ok) {
-                throw new Error(`Erro ao buscar detalhes do usuário: ${response.statusText}`);
+            // Retrieve user information from localStorage
+            const userData = localStorage.getItem('user');
+            if (!userData) {
+                throw new Error("Usuário não encontrado. Faça login.");
             }
 
-            const data = await response.json();
-            setUser(data); // Atualiza o estado com os detalhes do usuário
+            const parsedUserData = JSON.parse(userData);
+            setUser(parsedUserData); // Set the user data in state
         } catch (error) {
             toast({
                 title: "Erro ao buscar detalhes do usuário.",
@@ -40,14 +33,23 @@ export const ProfileComponent = () => {
     // Função para excluir o perfil do usuário
     const handleDeleteProfile = async () => {
         try {
-            const token = localStorage.getItem('token');
+            // Assume user is stored in localStorage and has an id or email
+            const userData = localStorage.getItem('user');
+            if (!userData) {
+                throw new Error("Usuário não encontrado. Faça login.");
+            }
 
+            const parsedUserData = JSON.parse(userData);
+            
+            // Assuming the user data contains an `id` or `email` for deleting the profile
             const response = await fetch('http://localhost:5000/users/user/delete', { // Ajuste para a rota correta de exclusão
                 method: 'DELETE',
                 headers: {
-                    Authorization: `Bearer ${token}`, 
                     'Content-Type': 'application/json',
                 },
+                body: JSON.stringify({
+                    userId: parsedUserData.id // or `email`, depending on the API
+                }),
             });
 
             if (!response.ok) {
@@ -55,8 +57,8 @@ export const ProfileComponent = () => {
                 throw new Error(`Falha ao excluir perfil: ${errorData.message || response.statusText}`);
             }
 
-            // Remove o token e redireciona o usuário
-            localStorage.removeItem('token');
+            // Remove user-related data and redirect
+            localStorage.removeItem('user');
             localStorage.removeItem('role');
 
             toast({

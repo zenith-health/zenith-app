@@ -17,10 +17,10 @@ function App() {
         <Routes>
           <Route path="/login" element={<LoginComponent setShowSignUp={setShowSignUp} />} />
           <Route path="/signup" element={<SignUpComponent setShowSignUp={setShowSignUp} />} />
-          <Route element={<ProtectedRoute />}>
-            <Route path="/home" element={<Home />} />
-            <Route path="/admin" element={<AdminComponent />} />
-          </Route>
+          {/* <Route element={<ProtectedRoute />}> */}
+          <Route path="/home" element={<Home />} />
+          <Route path="/admin" element={<AdminComponent />} />
+          {/* </Route> */}
           <Route path="/" element={<LoginPage />} />
         </Routes>
       </Router>

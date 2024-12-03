@@ -2,7 +2,6 @@ import { Box, IconButton, VStack, Image, Tooltip } from '@chakra-ui/react';
 import { FaHome, FaChartBar, FaDatabase, FaSignOutAlt, FaFileMedical, FaSearch, FaPersonBooth } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import logo from '../assets/health2-removebg.png';
-import { FaPersonArrowDownToLine } from 'react-icons/fa6';
 
 interface SideBarProps {
   onSelect: (componentName: string) => void;
@@ -11,10 +10,10 @@ interface SideBarProps {
 function SideBarComponent({ onSelect }: SideBarProps) {
   const navigate = useNavigate();
 
-  const handleLogout = () =>{
-    localStorage.removeItem('token');
-    localStorage.removeItem('role');
-    navigate('/');
+  const handleLogout = () => {
+    // Remove only user data (no need for JWT token handling)
+    localStorage.removeItem('user');  // Removed token and role removal
+    navigate('/'); // Redirect to home page after logout
   }
 
   return (

@@ -6,7 +6,7 @@ from bson.errors import InvalidId
 import logging
 logging.basicConfig(level=logging.DEBUG)
 
-bp = Blueprint('routes', __name__, url_prefix='/api')
+bp = Blueprint('routes', __name__, url_prefix='/api')  
 
 @bp.route('/anamnesis', methods=['POST'])
 def create_anamnese():

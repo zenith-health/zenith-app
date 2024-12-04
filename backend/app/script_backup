@@ -1,0 +1,49 @@
+import json
+from pymongo import MongoClient
+from bson import ObjectId
+
+# MongoDB connection settings
+mongo_uri = "mongodb://localhost:27017"  # Change to your MongoDB URI
+db_name = "zenith"  # Replace with your database name
+collection_name = "users"  # The collection containing your users
+
+# Connect to MongoDB
+client = MongoClient(mongo_uri)
+db = client[db_name]
+users_collection = db[collection_name]
+
+# Path to the deleted users file
+deleted_users_file = "deleted_users.json"
+
+# Function to scan and delete users from the database
+def delete_users_from_db():
+    try:
+        # Open the JSON file with deleted users
+        with open(deleted_users_file, 'r') as file:
+            for line in file:
+                # Parse the JSON data
+                deleted_user = json.loads(line.strip())
+
+                # Extract userId (ObjectId format) from the deleted user data
+                user_id = deleted_user.get("userId")
+                if not user_id:
+                    continue  # Skip if userId is missing
+
+                # Check if the user exists in the database
+                if ObjectId.is_valid(user_id):
+                    user = users_collection.find_one({"_id": ObjectId(user_id)})
+                    if user:
+                        # User found, delete them from the 'users' collection
+                        users_collection.delete_one({"_id": ObjectId(user_id)})
+                        print(f"Deleted user: {deleted_user['name']} ({deleted_user['email']})")
+                    else:
+                        print(f"User with ID {user_id} not found in the database.")
+                else:
+                    print(f"Invalid userId format: {user_id}")
+
+    except Exception as e:
+        print(f"Error: {str(e)}")
+
+# Run the function to delete users from the DB
+if __name__ == "__main__":
+    delete_users_from_db()

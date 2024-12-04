@@ -3,6 +3,8 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from . import mongo
 from bson import ObjectId
 import datetime
+import json
+
 
 bp = Blueprint('user_routes', __name__)
 
@@ -75,24 +77,46 @@ def admin_dashboard():
 @bp.route('/user/delete', methods=['DELETE'])
 def delete_user():
     try:
-        user_id = request.args.get('user_id')  # Insecure way to fetch user ID from request
+        # Get the user_id from query parameters
+        user_id = request.args.get('user_id')
+        print(user_id)
+
+        # Check if user_id is provided
         if not user_id:
             return jsonify({"message": "User ID is required"}), 400
-        
+
+        # Validate the ObjectId format
+        if not ObjectId.is_valid(user_id):
+            return jsonify({"message": "Invalid user ID format"}), 400
+
+        # Try to find the user in the database
         user = mongo.db.users.find_one({"_id": ObjectId(user_id)})
         if not user:
-            return jsonify({"message": "Usuário não encontrado"}), 404
-        
-        mongo.db.deleted_users.insert_one({
-            "userId": user["_id"],
-            "name": user["name"],
-            "email": user["email"],
-            "deletedAt": datetime.datetime.now()
-        })
+            return jsonify({"message": "User not found"}), 404
 
+        # Prepare the user data for saving into the JSON file
+        deleted_user_data = {
+            "userId": str(user["_id"]),
+            "deletedAt": datetime.datetime.now().isoformat()  # Using ISO format for date-time
+        }
+
+        # Save the user data to a JSON file
+        file_path = 'deleted_users.json'
+        try:
+            # Open the file and append the deleted user data as a new entry
+            with open(file_path, 'a') as f:
+                json.dump(deleted_user_data, f)
+                f.write('\n')  # Write each entry on a new line
+        except Exception as e:
+            return jsonify({"message": f"Failed to save deleted user data: {str(e)}"}), 500
+
+        # Delete the user from the 'users' collection
         mongo.db.users.delete_one({"_id": user["_id"]})
-        return jsonify({"message": "Usuário excluído com sucesso e registrado na coleção de excluídos"}), 200
+
+        return jsonify({"message": "User successfully deleted and data archived to JSON file"}), 200
+
     except Exception as e:
+        # Handle unexpected errors
         return jsonify({"message": str(e)}), 500
 
 

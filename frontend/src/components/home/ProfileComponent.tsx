@@ -35,22 +35,22 @@ export const ProfileComponent = () => {
         try {
             // Assume user is stored in localStorage and has an id or email
             const userData = localStorage.getItem('user');
+            console.log(userData)
             if (!userData) {
                 throw new Error("Usuário não encontrado. Faça login.");
             }
 
             const parsedUserData = JSON.parse(userData);
+
+            const userId = parsedUserData.id;
             
             // Assuming the user data contains an `id` or `email` for deleting the profile
-            const response = await fetch('http://localhost:5000/users/user/delete', { // Ajuste para a rota correta de exclusão
+            const response = await fetch(`http://localhost:5000/users/user/delete?user_id=${userId}`, { // Ajuste para a rota correta de exclusão
                 method: 'DELETE',
                 headers: {
                     'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    userId: parsedUserData.id // or `email`, depending on the API
-                }),
-            });
+                }
+            }); 
 
             if (!response.ok) {
                 const errorData = await response.json();

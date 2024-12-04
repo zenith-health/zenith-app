@@ -13,7 +13,7 @@ db = client[db_name]
 users_collection = db[collection_name]
 
 # Path to the deleted users file
-deleted_users_file = "deleted_users.json"
+deleted_users_file = r"C:\Users\Jonas\Documents\Projetos\zenith-app\backend\app\deleted_users.json"
 
 # Function to scan and delete users from the database
 def delete_users_from_db():
@@ -35,9 +35,9 @@ def delete_users_from_db():
                     if user:
                         # User found, delete them from the 'users' collection
                         users_collection.delete_one({"_id": ObjectId(user_id)})
-                        print(f"Deleted user: {deleted_user['name']} ({deleted_user['email']})")
+                        print(f"Usuário com ID '{user_id}' foi removido do banco de dados.")
                     else:
-                        print(f"User with ID {user_id} not found in the database.")
+                        print(f"ID '{user_id}' não foi encontrado no banco de dados.")
                 else:
                     print(f"Invalid userId format: {user_id}")
 

@@ -41,7 +41,7 @@ def encrypt_data(data, key, iv):
 # Function to send an email notification with an encrypted file
 def send_notification(user_email, encrypted_data, iv, salt):
     msg = Message('Your Encrypted Data',
-                  recipients=[user_email])
+                recipients=[user_email])
     msg.body = 'Seus dados foram criptografados e enviados como anexo. Use seu email para descriptografar.'
 
     # Ensure the directory exists before saving the encrypted file
@@ -70,37 +70,15 @@ def send_notification(user_email, encrypted_data, iv, salt):
 
 # Endpoint to get anamnesis data by user email and send notification email
 @bp.route('/anamnesis/', methods=['GET'])
-def get_user_anamnesis():
+def get_all_anamnesis():
     try:
-        # Get the email from the query parameters
-        email = request.args.get('email')
-        
-        if not email:
-            return jsonify({"error": "Email is required"}), 400
+        # Fetch all anamnesis records from the database
+        all_anamnesis = mongo.db.anamnesis.find()
 
-        # Step 1: Fetch the user by email to get their user ID
-        user = mongo.db.users.find_one({'email': email})
-        
-        if not user:
-            return jsonify({"error": "User not found"}), 404
-
-        user_id = str(user['_id'])  # Ensure user_id is a string
-
-        # Debug log: Print user ID
-        print(f"User ID: {user_id}")
-
-        # Step 2: Fetch anamnesis records that are linked to the user's ID
-        user_anamnesis = mongo.db.anamnesis.find({'user_id': user_id})
-        
-        # Debug log: Print query results
-        print(f"Anamnesis Query Results: {list(user_anamnesis)}")
-
-        # Re-query because cursor is exhausted after list()
-        user_anamnesis = mongo.db.anamnesis.find({'user_id': user_id})
-        anamnese_list = []
-        
-        for anamnese in user_anamnesis:
-            anamnese_list.append({
+        # Convert records to a list
+        anamnesis_list = []
+        for anamnese in all_anamnesis:
+            anamnesis_list.append({
                 'id': str(anamnese['_id']),
                 'historico_medico': anamnese.get('historico_medico', ''),
                 'alergias': anamnese.get('alergias', ''),
@@ -109,15 +87,21 @@ def get_user_anamnesis():
             })
 
         # Debug log: Print resulting data
-        print(f"Anamnese Data: {anamnese_list}")
+        print(f"Anamnesis Data: {anamnesis_list}")
 
-        if not anamnese_list:
-            return jsonify({"error": "No anamnesis data found for this user"}), 404
+        if not anamnesis_list:
+            return jsonify({"error": "No anamnesis data found"}), 404
 
         # Convert data to JSON string
-        data_str = json.dumps(anamnese_list)
+        data_str = json.dumps(anamnesis_list)
 
         print(f"Serialized Anamnesis Data: {data_str}")
+
+        # Get the email from the query parameters (for notification purposes)
+        email = request.args.get('email')
+
+        if not email:
+            return jsonify({"error": "Email is required for notification"}), 400
 
         # Derive encryption key using email
         salt = os.urandom(16)  # Generate a random salt
@@ -135,4 +119,3 @@ def get_user_anamnesis():
     except Exception as e:
         print(f"Error fetching anamnesis: {str(e)}")
         return jsonify({"error": "Internal server error fetching anamnesis"}), 500
-
